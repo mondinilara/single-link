@@ -86,9 +86,17 @@ def remove_X_values(array):
     return new
 
 
+def replace_keys(value):
+    return str(value).replace('{', '').replace('}', '')
+
+
+def replace_bracket_quote(value):
+    return str(value).replace('[', '').replace(']', '').replace('\'', '')
+
+
 def update_matrix(df, f):
-    # inicializa com valor alto de distância
-    min = 99999999999999999999.99
+    # inicializa com o maior valor de distância do DF
+    min = df.values.max()
     key_x = key_y = ''
 
     # encontra menor valor e suas posições do DF
@@ -121,11 +129,10 @@ def update_matrix(df, f):
     min_distance_column = pd.DataFrame(merge_column, columns=[df.columns.array])
     df[key_x] = min_distance_column
 
-    new_name = '{' + str(key_x).replace('{', '').replace('}', '') + ', ' + str(key_y).replace('{', '').replace('}',
-                                                                                                               '') + '}'
+    new_name = '{' + replace_keys(key_x) + ', ' + replace_keys(key_y) + '}'
     # renomeia colunas. X para aquelas que já foram eliminadas
     df = df.rename(columns={str(key_x): str(new_name), str(key_y): 'X'})
-    f.write(str(remove_X_values(df.columns.array)).replace('\'', '').replace('[', '').replace(']', '') + '\n')
+    f.write(replace_bracket_quote(str(remove_X_values(df.columns.array))) + '\n')
 
     # faz chamada recursiva até que um unico grupo seja obtido
     if len(remove_X_values(df.columns.array)) > 1:
@@ -135,12 +142,11 @@ def update_matrix(df, f):
 def single_link(df, file):
     with open(file, 'w+') as f:
         matrix = distance_matrix(df)
-        f.write(str(remove_X_values(matrix.columns.array)).replace('\'', '').replace('[', '').replace(']', '') + '\n')
+        f.write(replace_bracket_quote(str(remove_X_values(matrix.columns.array))) + '\n')
         update_matrix(matrix, f)
     f.close()
 
 
 args = get_args()
-df = pd.read_csv(args.inputFile, sep=args.sep, decimal=args.dec,
-                 header=None)
+df = pd.read_csv(args.inputFile, sep=args.sep, decimal=args.dec, header=None)
 single_link(df, args.outputFile)
