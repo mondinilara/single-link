@@ -96,7 +96,7 @@ def replace_bracket_quote(value):
 
 def update_matrix(df, f):
     # inicializa com o maior valor de distância do DF
-    min = df.values.max()
+    min = df.values.max() + 1.0
     key_x = key_y = ''
 
     # encontra menor valor e suas posições do DF
